@@ -1,6 +1,7 @@
 package com.example.networking_matcher.excel;
 
 import com.example.networking_matcher.excel.exceptions.ExcelException;
+import com.example.networking_matcher.models.Leader;
 import com.example.networking_matcher.models.Participant;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -23,12 +24,7 @@ public class ExcelService {
 
     public List<Participant> getParticipantsFromSpreadsheet(String fileLocation) throws IOException {
         try {
-            FileInputStream file = new FileInputStream(new File(fileLocation));
-            Workbook workbook = new XSSFWorkbook(file);
-
-            Sheet sheet = workbook.getSheetAt(0);
-
-            Map<Integer, List<String>> data = getDataFromSpreadsheet(sheet);
+            Map<Integer, List<String>> data = getDataFromSpreadsheet(fileLocation);
 
             List<Participant> participants = new ArrayList<>();
 
@@ -46,7 +42,36 @@ public class ExcelService {
         }
     }
 
-    private Map<Integer, List<String>> getDataFromSpreadsheet(Sheet sheet) {
+    public List<Leader> getLeadersFromSpreadsheet(String fileLocation) throws IOException {
+        try {
+            Map<Integer, List<String>> data = getDataFromSpreadsheet(fileLocation);
+
+            List<Leader> leaders = new ArrayList<>();
+
+            for (List<String> participant : data.values()) {
+                String name = participant.get(0);
+                String email = participant.get(1);
+                String preference = participant.get(2);
+                Leader newLeader = new Leader(name, email, preference);
+                leaders.add(newLeader);
+            }
+
+            return leaders;
+        } catch (IOException e) {
+            throw new IOException("Unable to process Excel Spreadsheet provided. Please review the spreadsheet and try again.");
+        }
+    }
+
+    private Map<Integer, List<String>> getDataFromSpreadsheet(String fileLocation) throws IOException {
+        FileInputStream file = new FileInputStream(new File(fileLocation));
+        Workbook workbook = new XSSFWorkbook(file);
+
+        Sheet sheet = workbook.getSheetAt(0);
+
+        return getDataFromSheet(sheet);
+    }
+
+    private Map<Integer, List<String>> getDataFromSheet(Sheet sheet) {
         Map<Integer, List<String>> data = new HashMap<>();
         int i = 0;
         for (Row row : sheet) {

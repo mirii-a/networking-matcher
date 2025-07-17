@@ -2,6 +2,7 @@ package com.example.networking_matcher.participants;
 
 import com.example.networking_matcher.excel.ExcelService;
 import com.example.networking_matcher.matching.MatchingOneToOneService;
+import com.example.networking_matcher.models.Leader;
 import com.example.networking_matcher.models.LeadersAndParticipants;
 import com.example.networking_matcher.models.Participant;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class ParticipantService {
     public LeadersAndParticipants getParticipants(String participantExcel, String leaderExcel) throws IOException {
         try {
             List<Participant> participants = excelService.getParticipantsFromSpreadsheet(participantExcel);
-            List<Participant> leaders = excelService.getParticipantsFromSpreadsheet(leaderExcel);
+            List<Leader> leaders = excelService.getLeadersFromSpreadsheet(leaderExcel);
             return new LeadersAndParticipants(leaders, participants);
 
         } catch (IOException ex) {

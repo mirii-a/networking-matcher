@@ -1,7 +1,7 @@
 package com.example.networking_matcher.models;
 
 public record OneToOneMatches(
-        Participant leader,
+        Leader leader,
         Participant participant
 ) {
 }
