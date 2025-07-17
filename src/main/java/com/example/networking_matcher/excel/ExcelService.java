@@ -21,7 +21,7 @@ public class ExcelService {
 
     }
 
-    List<Participant> getParticipantsFromSpreadsheet(String fileLocation) throws IOException {
+    public List<Participant> getParticipantsFromSpreadsheet(String fileLocation) throws IOException {
         try {
             FileInputStream file = new FileInputStream(new File(fileLocation));
             Workbook workbook = new XSSFWorkbook(file);
@@ -46,7 +46,7 @@ public class ExcelService {
         }
     }
 
-    Map<Integer, List<String>> getDataFromSpreadsheet(Sheet sheet) {
+    private Map<Integer, List<String>> getDataFromSpreadsheet(Sheet sheet) {
         Map<Integer, List<String>> data = new HashMap<>();
         int i = 0;
         for (Row row : sheet) {
