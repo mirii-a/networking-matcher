@@ -20,7 +20,7 @@ public class ExcelController {
 
     @GetMapping("")
     public void run() throws IOException {
-        List<Participant> participant = excelService.getColleaguesFromSpreadsheet("src/main/resources/static/excel/Colleagues.xlsx");
+        List<Participant> participant = excelService.getParticipantsFromSpreadsheet("src/main/resources/static/excel/Colleagues.xlsx");
         System.out.println();
     }
 }

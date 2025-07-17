@@ -21,7 +21,7 @@ public class ExcelService {
 
     }
 
-    List<Participant> getColleaguesFromSpreadsheet(String fileLocation) throws IOException {
+    List<Participant> getParticipantsFromSpreadsheet(String fileLocation) throws IOException {
         try {
             FileInputStream file = new FileInputStream(new File(fileLocation));
             Workbook workbook = new XSSFWorkbook(file);
