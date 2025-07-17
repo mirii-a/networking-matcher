@@ -1,7 +1,7 @@
 package com.example.networking_matcher.excel;
 
 import com.example.networking_matcher.excel.exceptions.ExcelException;
-import com.example.networking_matcher.models.Colleague;
+import com.example.networking_matcher.models.Participant;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class ExcelService {
 
     }
 
-    List<Colleague> getColleaguesFromSpreadsheet(String fileLocation) throws IOException {
+    List<Participant> getColleaguesFromSpreadsheet(String fileLocation) throws IOException {
         try {
             FileInputStream file = new FileInputStream(new File(fileLocation));
             Workbook workbook = new XSSFWorkbook(file);
@@ -30,17 +30,17 @@ public class ExcelService {
 
             Map<Integer, List<String>> data = getDataFromSpreadsheet(sheet);
 
-            List<Colleague> colleagues = new ArrayList<>();
+            List<Participant> participants = new ArrayList<>();
 
-            for (List<String> colleague : data.values()) {
-                String name = colleague.get(0);
-                String email = colleague.get(1);
-                String preference = colleague.get(2);
-                Colleague newColleague = new Colleague(name, email, preference);
-                colleagues.add(newColleague);
+            for (List<String> participant : data.values()) {
+                String name = participant.get(0);
+                String email = participant.get(1);
+                String preference = participant.get(2);
+                Participant newParticipant = new Participant(name, email, preference);
+                participants.add(newParticipant);
             }
 
-            return colleagues;
+            return participants;
         } catch (IOException e) {
             throw new IOException("Unable to process Excel Spreadsheet provided. Please review the spreadsheet and try again.");
         }
@@ -59,7 +59,8 @@ public class ExcelService {
                 if (cell.getCellType() != CellType.STRING) {
                     throw new ExcelException("Unexpected cell value found in Excel spreadsheet: " + cell.getCellType()
                             + "\nRow: " + row
-                            + "\nCell: " + cell);
+                            + "\nCell: " + cell
+                            + "\nExpecting spreadsheet to be names of volunteers or participants only.");
                 }
                 data.get(i).add(cell.getRichStringCellValue().getString());
             }

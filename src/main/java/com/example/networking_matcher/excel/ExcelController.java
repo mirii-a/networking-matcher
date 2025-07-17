@@ -1,6 +1,6 @@
 package com.example.networking_matcher.excel;
 
-import com.example.networking_matcher.models.Colleague;
+import com.example.networking_matcher.models.Participant;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +20,7 @@ public class ExcelController {
 
     @GetMapping("")
     public void run() throws IOException {
-        List<Colleague> colleagues = excelService.getColleaguesFromSpreadsheet("src/main/resources/static/excel/Colleagues.xlsx");
+        List<Participant> participant = excelService.getColleaguesFromSpreadsheet("src/main/resources/static/excel/Colleagues.xlsx");
         System.out.println();
     }
 }
