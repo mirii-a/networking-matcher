@@ -28,7 +28,7 @@ public class ParticipantController {
     }
 
     @GetMapping("/one-to-one")
-    public void matchParticipantsOneToOne() throws IOException {
+    public void matchParticipantsOneToOne() throws Exception {
         leadersAndParticipants = participantService.getParticipants(
                 "src/main/resources/static/excel/Colleagues.xlsx",
                 "src/main/resources/static/excel/Volunteers.xlsx");

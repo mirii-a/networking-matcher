@@ -1,7 +1,7 @@
 package com.example.networking_matcher.models;
 
-public record ParticipantMatches(
+public record ParticipantMatch(
         String slot,
-        Participant leaderMatchedWith
+        LeaderDto leaderMatchedWith
 ) {
 }

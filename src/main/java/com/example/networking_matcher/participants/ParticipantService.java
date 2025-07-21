@@ -32,7 +32,7 @@ public class ParticipantService {
         }
     }
 
-    public void matchOneToOne(LeadersAndParticipants leadersAndParticipants) {
+    public void matchOneToOne(LeadersAndParticipants leadersAndParticipants) throws Exception {
         matchingOneToOneService.matchOneToOne(leadersAndParticipants);
     }
 }
