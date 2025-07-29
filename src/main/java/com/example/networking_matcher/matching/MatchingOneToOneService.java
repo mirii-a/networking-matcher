@@ -11,24 +11,7 @@ public class MatchingOneToOneService {
     public MatchingOneToOneService() {
     }
 
-    public void matchOneToOne(LeadersAndParticipants leadersAndParticipants) throws Exception {
-
-//        int i = 1;
-//
-//        while (i > 0) {
-//            Scanner myObj = new Scanner(System.in);
-//            System.out.println("Input + or -");
-//
-//            String answer = myObj.nextLine();
-//            if (Objects.equals(answer, "-")) {
-//                i --;
-//            }
-//            if (Objects.equals(answer, "+")) {
-//                i++;
-//            }
-//        }
-//
-//        System.out.println("This seems to work");
+    public void matchOneToOne(LeadersAndParticipants leadersAndParticipants) {
 
         List<Leader> leaders = leadersAndParticipants.leaders();
         List<Participant> participants = leadersAndParticipants.participants();
@@ -129,65 +112,11 @@ public class MatchingOneToOneService {
 
                             break;
                         }
-//                        if (numberOfParticipantsInBatch == 0) {
-//                            // Get remaining leaders and add them to the unmatched
-//                            System.out.println("IN CONDITION - WHILE LOOP DID NOT BREAK");
-//                            List<Leader> unmatched = new ArrayList<>(leadersWithPreference);
-//                            unmatched.removeAll(matchedLeaders);
-//                            unmatchedLeaders.addAll(unmatched);
-//                            break;
-//                        }
                     }
                     if (numberOfLeadersInBatch == 0 || numberOfParticipantsInBatch == 0) {
                         break;
                     }
                 }
-
-//                for (Leader leader : leadersWithPreference) {
-//                    String leaderEmail = leader.email();
-//                    if (matchedLeaders.stream().anyMatch(matchedLeader -> matchedLeader.email().equals(leaderEmail))) {
-//                        // Continue as leader has been matched
-//                        continue;
-//                    }
-//                    for (Participant participant : participantsWithPreference) {
-//                        String participantEmail = participant.email();
-//                        if (matchedParticipants.stream().anyMatch(matchedParticipant -> matchedParticipant.email().equals(participantEmail))) {
-//                            // Continue as participant has been matched
-//                            continue;
-//                        }
-//                        // If participant has not been matched with Leader in previous slot
-//                        if (participant.matchedWith().stream().noneMatch(match -> match.leaderMatchedWith().email().equals(leaderEmail))) {
-//                            // Update Participant matchedWith
-//                            participant = updateParticipantMatchedWith(participant, leader, slot);
-//                            matchedParticipants.add(participant);
-//
-//                            // Update Leader matchedWith
-//                            leader = updateLeaderMatchedWith(leader, participant, slot);
-//                            matchedLeaders.add(leader);
-//
-//                            matches.add(new OneToOneMatch(leader, participant));
-//
-//                            numberOfLeadersInBatch--;
-//                            numberOfParticipantsInBatch--;
-//                            break;
-//                        }
-//                    }
-//
-//                    if (numberOfLeadersInBatch == 0) {
-//                        // Get remaining participants and add them to the unmatched
-//                        List<Participant> unmatched = new ArrayList<>(participantsWithPreference);
-//                        unmatched.removeAll(matchedParticipants);
-//                        unmatchedParticipants.addAll(unmatched);
-//                        break;
-//                    }
-//                    if (numberOfParticipantsInBatch == 0) {
-//                        // Get remaining leaders and add them to the unmatched
-//                        List<Leader> unmatched = new ArrayList<>(leadersWithPreference);
-//                        unmatched.removeAll(matchedLeaders);
-//                        unmatchedLeaders.addAll(unmatched);
-//                        break;
-//                    }
-//                }
 
                 System.out.println();
             }
