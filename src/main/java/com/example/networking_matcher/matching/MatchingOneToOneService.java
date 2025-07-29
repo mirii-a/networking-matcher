@@ -162,7 +162,7 @@ public class MatchingOneToOneService {
             List<OneToOneMatch> matches = slot.getValue();
             System.out.println("===========================================");
             System.out.println("SLOT: " + slot.getKey());
-            for (OneToOneMatch match : matches){
+            for (OneToOneMatch match : matches) {
                 System.out.println("Leader:\t" + match.leader().name() + "\t" + match.leader().email() + "\t" + match.leader().preference()
                         + " has been matched with Participant:\t" + match.participant().name() + "\t" + match.participant().email() + "\t" + match.participant().preference());
             }
