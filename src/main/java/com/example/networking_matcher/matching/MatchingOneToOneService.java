@@ -26,7 +26,7 @@ public class MatchingOneToOneService {
         HashMap<String, List<OneToOneMatch>> finalMatches = new HashMap<>();
 
         for (int i = 0; i < numberOfSlots; i++) {
-            String slot = "slot" + i;
+            String slot = "slot" + (i + 1);
             List<OneToOneMatch> matches = new ArrayList<>();
             List<Leader> unmatchedLeaders = new ArrayList<>();
             List<Participant> unmatchedParticipants = new ArrayList<>();
@@ -117,7 +117,6 @@ public class MatchingOneToOneService {
                         break;
                     }
                 }
-
                 System.out.println();
             }
             int unmatchedLeadersBatch = unmatchedLeaders.size();
@@ -158,17 +157,19 @@ public class MatchingOneToOneService {
         }
         System.out.println();
 
-        for (Map.Entry<String, List<OneToOneMatch>> slot : finalMatches.entrySet()) {
-            List<OneToOneMatch> matches = slot.getValue();
+        List<String> correctKeyOrder = new ArrayList<>(finalMatches.keySet());
+        Collections.reverse(correctKeyOrder);
+
+        for (String slot : correctKeyOrder) {
+            List<OneToOneMatch> matches = finalMatches.get(slot);
             System.out.println("===========================================");
-            System.out.println("SLOT: " + slot.getKey());
+            System.out.println("SLOT: " + slot);
             for (OneToOneMatch match : matches) {
                 System.out.println("Leader:\t" + match.leader().name() + "\t" + match.leader().email() + "\t" + match.leader().preference()
                         + " has been matched with Participant:\t" + match.participant().name() + "\t" + match.participant().email() + "\t" + match.participant().preference());
             }
             System.out.println("===========================================");
         }
-
     }
 
     private Participant updateParticipantMatchedWith(Participant participant, Leader leader, String slot) {
