@@ -26,10 +26,7 @@ public class MatchingOneToOneService {
 
         int numberOfSlots = 3;
 
-        HashSet<String> preferences = new HashSet<>();
-
-        leaders.forEach(leader -> preferences.add(leader.preference()));
-        participants.forEach(participant -> preferences.add(participant.preference()));
+        HashSet<String> preferences = getCompleteSetOfPreferencesFromEveryone(leaders, participants);
 
         HashMap<String, List<OneToOneMatch>> finalMatches = new HashMap<>();
 
@@ -40,11 +37,9 @@ public class MatchingOneToOneService {
             List<Participant> unmatchedParticipants = new ArrayList<>();
             for (String preference : preferences) {
                 List<Leader> leadersWithPreference = leaders.stream()
-                        .filter(leader -> leader.preference().equals(preference))
-                        .toList();
+                        .filter(leader -> leader.preference().equals(preference)).toList();
                 List<Participant> participantsWithPreference = participants.stream()
-                        .filter(participant -> participant.preference().equals(preference))
-                        .toList();
+                        .filter(participant -> participant.preference().equals(preference)).toList();
 
                 List<Leader> matchedLeaders = new ArrayList<>();
                 List<Participant> matchedParticipants = new ArrayList<>();
@@ -93,14 +88,9 @@ public class MatchingOneToOneService {
                                 List<Leader> leadersNotAlreadyInMatched = new ArrayList<>(leadersWithPreference);
                                 leadersNotAlreadyInMatched.removeAll(matchedLeaders);
                                 int numberOfUnmatchedLeaders = leadersNotAlreadyInMatched.size();
-                                int participantAlreadyMatchedWithNumberOfLeadersInThisList = 0;
-                                for (ParticipantMatch match : participant.matchedWith()) {
-                                    for (Leader unmatchedLeader : leadersNotAlreadyInMatched) {
-                                        if (unmatchedLeader.email().equals(match.leaderMatchedWith().email())) {
-                                            participantAlreadyMatchedWithNumberOfLeadersInThisList++;
-                                        }
-                                    }
-                                }
+                                int participantAlreadyMatchedWithNumberOfLeadersInThisList =
+                                        getNumberOfLeadersParticipantIsAlreadyMatchedWithFromUnmatchedLeaders(
+                                                participant, leadersNotAlreadyInMatched);
                                 if (participantAlreadyMatchedWithNumberOfLeadersInThisList == numberOfUnmatchedLeaders) {
                                     System.out.println("Participant " + participant.name() + " cannot be matched with any remaining leaders in this batch.");
                                     numberOfParticipantsInBatch--;
@@ -109,7 +99,6 @@ public class MatchingOneToOneService {
                         }
                         if (numberOfLeadersInBatch == 0 || numberOfParticipantsInBatch == 0) {
                             // Get remaining participants and add them to the unmatched
-                            System.out.println("IN CONDITION - WHILE LOOP DID NOT BREAK");
                             List<Participant> unmatchedParticipantsInBatch = new ArrayList<>(participantsWithPreference);
                             unmatchedParticipantsInBatch.removeAll(matchedParticipants);
                             unmatchedParticipants.addAll(unmatchedParticipantsInBatch);
@@ -160,11 +149,8 @@ public class MatchingOneToOneService {
                     break;
                 }
             }
-            System.out.println();
             finalMatches.put(slot, matches);
         }
-        System.out.println();
-
         excelService.createExcelNotebook(finalMatches);
     }
 
@@ -181,5 +167,26 @@ public class MatchingOneToOneService {
         ArrayList<LeaderMatch> leaderMatchedWith = leader.matchedWith();
         leaderMatchedWith.add(leaderMatch);
         return leader.updateMatchedWith(leaderMatchedWith);
+    }
+
+    private int getNumberOfLeadersParticipantIsAlreadyMatchedWithFromUnmatchedLeaders(Participant participant, List<Leader> leadersNotAlreadyInMatched) {
+        int participantAlreadyMatchedWithNumberOfLeadersInThisList = 0;
+        for (ParticipantMatch match : participant.matchedWith()) {
+            for (Leader unmatchedLeader : leadersNotAlreadyInMatched) {
+                if (unmatchedLeader.email().equals(match.leaderMatchedWith().email())) {
+                    participantAlreadyMatchedWithNumberOfLeadersInThisList++;
+                }
+            }
+        }
+        return participantAlreadyMatchedWithNumberOfLeadersInThisList;
+    }
+
+    private HashSet<String> getCompleteSetOfPreferencesFromEveryone(List<Leader> leaders, List<Participant> participants) {
+        HashSet<String> preferences = new HashSet<>();
+
+        leaders.forEach(leader -> preferences.add(leader.preference()));
+        participants.forEach(participant -> preferences.add(participant.preference()));
+
+        return preferences;
     }
 }
