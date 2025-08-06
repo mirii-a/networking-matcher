@@ -2,18 +2,15 @@ package com.example.networking_matcher.excel;
 
 import com.example.networking_matcher.excel.exceptions.ExcelException;
 import com.example.networking_matcher.models.Leader;
+import com.example.networking_matcher.models.OneToOneMatch;
 import com.example.networking_matcher.models.Participant;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 @Service
 public class ExcelService {
@@ -92,5 +89,100 @@ public class ExcelService {
             i++;
         }
         return data;
+    }
+
+    public void createExcelNotebook(HashMap<String, List<OneToOneMatch>> finalMatches) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+
+        CellStyle style = workbook.createCellStyle();
+        style.setWrapText(true);
+
+        List<String> correctKeyOrder = new ArrayList<>(finalMatches.keySet());
+        Collections.reverse(correctKeyOrder);
+
+        for (int y = 0; y < correctKeyOrder.size(); y++) {
+            List<OneToOneMatch> matches = finalMatches.get(correctKeyOrder.get(y));
+            System.out.println("===========================================");
+
+            // Create sheet
+            Sheet spreadsheet = workbook.createSheet(correctKeyOrder.get(y));
+
+            // Set headers
+            Row header = spreadsheet.createRow(0);
+            setHeaderRowForOneToOne(header, style);
+
+            System.out.println("SLOT: " + correctKeyOrder.get(y));
+
+            for (int i = 0; i < matches.size(); i++) {
+                System.out.println("Leader:\t" + matches.get(i).leader().name() + "\t" + matches.get(i).leader().email() + "\t" + matches.get(i).leader().preference()
+                        + " has been matched with Participant:\t" + matches.get(i).participant().name() + "\t" + matches.get(i).participant().email() + "\t" + matches.get(i).participant().preference());
+                Row row = spreadsheet.createRow(i + 1);
+                setCellsForRowOneToOne(row, style, matches.get(i).leader(), matches.get(i).participant());
+
+            }
+            System.out.println("===========================================");
+        }
+
+        File currentDirectory = new File(".");
+        String path = currentDirectory.getAbsolutePath();
+        String fileLocation = path.substring(0, path.length() -1) + "one-to-one-matches.xlsx";
+
+        FileOutputStream outputStream = new FileOutputStream(fileLocation);
+        workbook.write(outputStream);
+        workbook.close();
+
+    }
+
+    private void setHeaderRowForOneToOne(Row header, CellStyle style) {
+        Cell headerCell = header.createCell(0);
+        headerCell.setCellValue("Leader Name");
+        headerCell.setCellStyle(style);
+
+        headerCell = header.createCell(1);
+        headerCell.setCellValue("Leader Email");
+        headerCell.setCellStyle(style);
+
+        headerCell = header.createCell(2);
+        headerCell.setCellValue("Leader Preference");
+        headerCell.setCellStyle(style);
+
+        headerCell = header.createCell(3);
+        headerCell.setCellValue("Participant Name");
+        headerCell.setCellStyle(style);
+
+        headerCell = header.createCell(4);
+        headerCell.setCellValue("Participant Email");
+        headerCell.setCellStyle(style);
+
+        headerCell = header.createCell(5);
+        headerCell.setCellValue("Participant Preference");
+        headerCell.setCellStyle(style);
+    }
+
+    private void setCellsForRowOneToOne(Row row, CellStyle style, Leader leader, Participant participant){
+        Cell cell = row.createCell(0); // Leader name
+        cell.setCellValue(leader.name());
+        cell.setCellStyle(style);
+
+        cell = row.createCell(1); // Leader email
+        cell.setCellValue(leader.email());
+        cell.setCellStyle(style);
+
+        cell = row.createCell(2); // Leader preference
+        cell.setCellValue(leader.preference());
+        cell.setCellStyle(style);
+
+        cell = row.createCell(3); // Participant name
+        cell.setCellValue(participant.name());
+        cell.setCellStyle(style);
+
+        cell = row.createCell(4); // Participant email
+        cell.setCellValue(participant.email());
+        cell.setCellStyle(style);
+
+        cell = row.createCell(5); // Participant preference
+        cell.setCellValue(participant.preference());
+        cell.setCellStyle(style);
+
     }
 }

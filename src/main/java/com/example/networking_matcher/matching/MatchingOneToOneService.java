@@ -1,17 +1,22 @@
 package com.example.networking_matcher.matching;
 
+import com.example.networking_matcher.excel.ExcelService;
 import com.example.networking_matcher.models.*;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
 public class MatchingOneToOneService {
 
-    public MatchingOneToOneService() {
+    private final ExcelService excelService;
+
+    public MatchingOneToOneService(ExcelService excelService) {
+        this.excelService = excelService;
     }
 
-    public void matchOneToOne(LeadersAndParticipants leadersAndParticipants) {
+    public void matchOneToOne(LeadersAndParticipants leadersAndParticipants) throws IOException {
 
         List<Leader> leaders = leadersAndParticipants.leaders();
         List<Participant> participants = leadersAndParticipants.participants();
@@ -157,19 +162,20 @@ public class MatchingOneToOneService {
         }
         System.out.println();
 
-        List<String> correctKeyOrder = new ArrayList<>(finalMatches.keySet());
-        Collections.reverse(correctKeyOrder);
-
-        for (String slot : correctKeyOrder) {
-            List<OneToOneMatch> matches = finalMatches.get(slot);
-            System.out.println("===========================================");
-            System.out.println("SLOT: " + slot);
-            for (OneToOneMatch match : matches) {
-                System.out.println("Leader:\t" + match.leader().name() + "\t" + match.leader().email() + "\t" + match.leader().preference()
-                        + " has been matched with Participant:\t" + match.participant().name() + "\t" + match.participant().email() + "\t" + match.participant().preference());
-            }
-            System.out.println("===========================================");
-        }
+        excelService.createExcelNotebook(finalMatches);
+//        List<String> correctKeyOrder = new ArrayList<>(finalMatches.keySet());
+//        Collections.reverse(correctKeyOrder);
+//
+//        for (String slot : correctKeyOrder) {
+//            List<OneToOneMatch> matches = finalMatches.get(slot);
+//            System.out.println("===========================================");
+//            System.out.println("SLOT: " + slot);
+//            for (OneToOneMatch match : matches) {
+//                System.out.println("Leader:\t" + match.leader().name() + "\t" + match.leader().email() + "\t" + match.leader().preference()
+//                        + " has been matched with Participant:\t" + match.participant().name() + "\t" + match.participant().email() + "\t" + match.participant().preference());
+//            }
+//            System.out.println("===========================================");
+//        }
     }
 
     private Participant updateParticipantMatchedWith(Participant participant, Leader leader, String slot) {
