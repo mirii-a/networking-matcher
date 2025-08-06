@@ -5,11 +5,13 @@ import com.example.networking_matcher.models.Leader;
 import com.example.networking_matcher.models.OneToOneMatch;
 import com.example.networking_matcher.models.Participant;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -125,7 +127,7 @@ public class ExcelService {
 
         File currentDirectory = new File(".");
         String path = currentDirectory.getAbsolutePath();
-        String fileLocation = path.substring(0, path.length() -1) + "one-to-one-matches.xlsx";
+        String fileLocation = path.substring(0, path.length() - 1) + "one-to-one-matches.xlsx";
 
         FileOutputStream outputStream = new FileOutputStream(fileLocation);
         workbook.write(outputStream);
@@ -159,7 +161,7 @@ public class ExcelService {
         headerCell.setCellStyle(style);
     }
 
-    private void setCellsForRowOneToOne(Row row, CellStyle style, Leader leader, Participant participant){
+    private void setCellsForRowOneToOne(Row row, CellStyle style, Leader leader, Participant participant) {
         Cell cell = row.createCell(0); // Leader name
         cell.setCellValue(leader.name());
         cell.setCellStyle(style);
