@@ -1,10 +1,8 @@
 package com.example.networking_matcher.matching;
 
-import com.example.networking_matcher.excel.ExcelService;
 import com.example.networking_matcher.models.*;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,13 +11,10 @@ import java.util.List;
 @Service
 public class MatchingOneToOneService {
 
-    private final ExcelService excelService;
-
-    public MatchingOneToOneService(ExcelService excelService) {
-        this.excelService = excelService;
+    public MatchingOneToOneService() {
     }
 
-    public void matchOneToOne(LeadersAndParticipants leadersAndParticipants) throws IOException {
+    public HashMap<String, List<OneToOneMatch>> matchOneToOne(LeadersAndParticipants leadersAndParticipants) {
 
         List<Leader> leaders = leadersAndParticipants.leaders();
         List<Participant> participants = leadersAndParticipants.participants();
@@ -151,7 +146,8 @@ public class MatchingOneToOneService {
             }
             finalMatches.put(slot, matches);
         }
-        excelService.createExcelNotebook(finalMatches);
+//        excelService.createExcelNotebook(finalMatches);
+        return finalMatches;
     }
 
     private Participant updateParticipantMatchedWith(Participant participant, Leader leader, String slot) {

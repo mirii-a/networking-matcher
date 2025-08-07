@@ -33,6 +33,6 @@ public class ParticipantController {
                 "src/main/resources/static/excel/Colleagues.xlsx",
                 "src/main/resources/static/excel/Volunteers.xlsx");
 
-        participantService.matchOneToOne(leadersAndParticipants);
+        participantService.getOneToOneMatches(leadersAndParticipants);
     }
 }

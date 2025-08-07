@@ -4,10 +4,12 @@ import com.example.networking_matcher.excel.ExcelService;
 import com.example.networking_matcher.matching.MatchingOneToOneService;
 import com.example.networking_matcher.models.Leader;
 import com.example.networking_matcher.models.LeadersAndParticipants;
+import com.example.networking_matcher.models.OneToOneMatch;
 import com.example.networking_matcher.models.Participant;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -32,7 +34,8 @@ public class ParticipantService {
         }
     }
 
-    public void matchOneToOne(LeadersAndParticipants leadersAndParticipants) throws Exception {
-        matchingOneToOneService.matchOneToOne(leadersAndParticipants);
+    public void getOneToOneMatches(LeadersAndParticipants leadersAndParticipants) {
+        HashMap<String, List<OneToOneMatch>> oneToOneMatches = matchingOneToOneService.matchOneToOne(leadersAndParticipants);
+        excelService.createExcelNotebook(oneToOneMatches);
     }
 }
