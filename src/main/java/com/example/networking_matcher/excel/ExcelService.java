@@ -93,27 +93,27 @@ public class ExcelService {
         return data;
     }
 
-    public void createExcelNotebook(HashMap<String, List<OneToOneMatch>> finalMatches) throws IOException {
+    public void createExcelNotebook(HashMap<String, List<OneToOneMatch>> finalMatches) {
         Workbook workbook = new XSSFWorkbook();
 
         CellStyle style = workbook.createCellStyle();
-        style.setWrapText(true);
+        style.setWrapText(false);
 
         List<String> correctKeyOrder = new ArrayList<>(finalMatches.keySet());
         Collections.reverse(correctKeyOrder);
 
-        for (int y = 0; y < correctKeyOrder.size(); y++) {
-            List<OneToOneMatch> matches = finalMatches.get(correctKeyOrder.get(y));
+        for (String slot : correctKeyOrder) {
+            List<OneToOneMatch> matches = finalMatches.get(slot);
             System.out.println("===========================================");
 
             // Create sheet
-            Sheet spreadsheet = workbook.createSheet(correctKeyOrder.get(y));
+            Sheet spreadsheet = workbook.createSheet(slot);
 
             // Set headers
             Row header = spreadsheet.createRow(0);
             setHeaderRowForOneToOne(header, style);
 
-            System.out.println("SLOT: " + correctKeyOrder.get(y));
+            System.out.println("SLOT: " + slot);
 
             for (int i = 0; i < matches.size(); i++) {
                 System.out.println("Leader:\t" + matches.get(i).leader().name() + "\t" + matches.get(i).leader().email() + "\t" + matches.get(i).leader().preference()
@@ -125,13 +125,17 @@ public class ExcelService {
             System.out.println("===========================================");
         }
 
-        File currentDirectory = new File(".");
-        String path = currentDirectory.getAbsolutePath();
-        String fileLocation = path.substring(0, path.length() - 1) + "one-to-one-matches.xlsx";
+        try {
+            File currentDirectory = new File(".");
+            String path = currentDirectory.getAbsolutePath();
+            String fileLocation = path.substring(0, path.length() - 1) + "one-to-one-matches.xlsx";
 
-        FileOutputStream outputStream = new FileOutputStream(fileLocation);
-        workbook.write(outputStream);
-        workbook.close();
+            FileOutputStream outputStream = new FileOutputStream(fileLocation);
+            workbook.write(outputStream);
+            workbook.close();
+        } catch (IOException e) {
+            throw new ExcelException("Unable to save matches to Excel spreadsheet. Please try again. Error: " + e.getMessage());
+        }
 
     }
 
