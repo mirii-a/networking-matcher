@@ -34,7 +34,7 @@ public class ParticipantService {
         }
     }
 
-    public void getOneToOneMatches(LeadersAndParticipants leadersAndParticipants) {
+    public void getOneToOneMatches(LeadersAndParticipants leadersAndParticipants) throws Exception {
         HashMap<String, List<OneToOneMatch>> oneToOneMatches = matchingOneToOneService.matchOneToOne(leadersAndParticipants);
         excelService.createExcelNotebook(oneToOneMatches);
     }

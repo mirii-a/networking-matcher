@@ -3,10 +3,8 @@ package com.example.networking_matcher.matching;
 import com.example.networking_matcher.models.*;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.sql.Array;
+import java.util.*;
 
 @Service
 public class MatchingOneToOneService {
@@ -14,7 +12,7 @@ public class MatchingOneToOneService {
     public MatchingOneToOneService() {
     }
 
-    public HashMap<String, List<OneToOneMatch>> matchOneToOne(LeadersAndParticipants leadersAndParticipants) {
+    public HashMap<String, List<OneToOneMatch>> matchOneToOne(LeadersAndParticipants leadersAndParticipants) throws Exception {
 
         List<Leader> leaders = leadersAndParticipants.leaders();
         List<Participant> participants = leadersAndParticipants.participants();
@@ -49,64 +47,66 @@ public class MatchingOneToOneService {
                     unmatchedLeaders.addAll(leadersWithPreference);
                 }
 
-                while (numberOfLeadersInBatch != 0) {
-                    for (Leader leader : leadersWithPreference) {
-                        String leaderEmail = leader.email();
-                        if (matchedLeaders.stream().anyMatch(matchedLeader -> matchedLeader.email().equals(leaderEmail))) {
-                            // Continue as leader has been matched
-                            continue;
-                        }
-                        for (Participant participant : participantsWithPreference) {
-                            String participantEmail = participant.email();
-                            if (matchedParticipants.stream().anyMatch(matchedParticipant -> matchedParticipant.email().equals(participantEmail))) {
-                                // Continue as participant has been matched
+                if (numberOfParticipantsInBatch != 0) {
+                    while (numberOfLeadersInBatch != 0) {
+                        for (Leader leader : leadersWithPreference) {
+                            String leaderEmail = leader.email();
+                            if (matchedLeaders.stream().anyMatch(matchedLeader -> matchedLeader.email().equals(leaderEmail))) {
+                                // Continue as leader has been matched
                                 continue;
                             }
-                            // If participant has not been matched with Leader in previous slot
-                            if (participant.matchedWith().stream().noneMatch(match -> match.leaderMatchedWith().email().equals(leaderEmail))) {
-                                // Update Participant matchedWith
-                                participant = updateParticipantMatchedWith(participant, leader, slot);
-                                matchedParticipants.add(participant);
-
-                                // Update Leader matchedWith
-                                leader = updateLeaderMatchedWith(leader, participant, slot);
-                                matchedLeaders.add(leader);
-
-                                matches.add(new OneToOneMatch(leader, participant));
-
-                                numberOfLeadersInBatch--;
-                                numberOfParticipantsInBatch--;
-                                break;
-                            } else {
-                                // If participant cannot match with any remaining leaders because they have a match
-                                // in a previous slot
-                                List<Leader> leadersNotAlreadyInMatched = new ArrayList<>(leadersWithPreference);
-                                leadersNotAlreadyInMatched.removeAll(matchedLeaders);
-                                int numberOfUnmatchedLeaders = leadersNotAlreadyInMatched.size();
-                                int participantAlreadyMatchedWithNumberOfLeadersInThisList =
-                                        getNumberOfLeadersParticipantIsAlreadyMatchedWithFromUnmatchedLeaders(
-                                                participant, leadersNotAlreadyInMatched);
-                                if (participantAlreadyMatchedWithNumberOfLeadersInThisList == numberOfUnmatchedLeaders) {
-                                    System.out.println("Participant " + participant.name() + " cannot be matched with any remaining leaders in this batch.");
-                                    numberOfParticipantsInBatch--;
+                            for (Participant participant : participantsWithPreference) {
+                                String participantEmail = participant.email();
+                                if (matchedParticipants.stream().anyMatch(matchedParticipant -> matchedParticipant.email().equals(participantEmail))) {
+                                    // Continue as participant has been matched
+                                    continue;
                                 }
+                                // If participant has not been matched with Leader in previous slot
+                                if (participant.matchedWith().stream().noneMatch(match -> match.leaderMatchedWith().email().equals(leaderEmail))) {
+                                    // Update Participant matchedWith
+                                    participant = updateParticipantMatchedWith(participant, leader, slot);
+                                    matchedParticipants.add(participant);
+
+                                    // Update Leader matchedWith
+                                    leader = updateLeaderMatchedWith(leader, participant, slot);
+                                    matchedLeaders.add(leader);
+
+                                    matches.add(new OneToOneMatch(leader, participant));
+
+                                    numberOfLeadersInBatch--;
+                                    numberOfParticipantsInBatch--;
+                                    break;
+                                } else {
+                                    // If participant cannot match with any remaining leaders because they have a match
+                                    // in a previous slot
+                                    List<Leader> leadersNotAlreadyInMatched = new ArrayList<>(leadersWithPreference);
+                                    leadersNotAlreadyInMatched.removeAll(matchedLeaders);
+                                    int numberOfUnmatchedLeaders = leadersNotAlreadyInMatched.size();
+                                    int participantAlreadyMatchedWithNumberOfLeadersInThisList =
+                                            getNumberOfLeadersParticipantIsAlreadyMatchedWithFromUnmatchedLeaders(
+                                                    participant, leadersNotAlreadyInMatched);
+                                    if (participantAlreadyMatchedWithNumberOfLeadersInThisList == numberOfUnmatchedLeaders) {
+                                        System.out.println("Participant " + participant.name() + " cannot be matched with any remaining leaders in this batch.");
+                                        numberOfParticipantsInBatch--;
+                                    }
+                                }
+                            }
+                            if (numberOfLeadersInBatch == 0 || numberOfParticipantsInBatch == 0) {
+                                // Get remaining participants and add them to the unmatched
+                                List<Participant> unmatchedParticipantsInBatch = new ArrayList<>(participantsWithPreference);
+                                unmatchedParticipantsInBatch.removeAll(matchedParticipants);
+                                unmatchedParticipants.addAll(unmatchedParticipantsInBatch);
+
+                                List<Leader> unmatchedLeadersInBatch = new ArrayList<>(leadersWithPreference);
+                                unmatchedLeadersInBatch.removeAll(matchedLeaders);
+                                unmatchedLeaders.addAll(unmatchedLeadersInBatch);
+
+                                break;
                             }
                         }
                         if (numberOfLeadersInBatch == 0 || numberOfParticipantsInBatch == 0) {
-                            // Get remaining participants and add them to the unmatched
-                            List<Participant> unmatchedParticipantsInBatch = new ArrayList<>(participantsWithPreference);
-                            unmatchedParticipantsInBatch.removeAll(matchedParticipants);
-                            unmatchedParticipants.addAll(unmatchedParticipantsInBatch);
-
-                            List<Leader> unmatchedLeadersInBatch = new ArrayList<>(leadersWithPreference);
-                            unmatchedLeadersInBatch.removeAll(matchedLeaders);
-                            unmatchedLeaders.addAll(unmatchedLeadersInBatch);
-
                             break;
                         }
-                    }
-                    if (numberOfLeadersInBatch == 0 || numberOfParticipantsInBatch == 0) {
-                        break;
                     }
                 }
                 System.out.println();
@@ -144,9 +144,46 @@ public class MatchingOneToOneService {
                     break;
                 }
             }
+            // Check if there are any leaders or participants that do not have a match from unmatched
+            int expectedSize = i + 1;
+            List<Leader> stillUnmatchedLeaders = unmatchedLeaders.stream().filter(leader -> leader.matchedWith().size() < expectedSize).toList();
+            List<Participant> stillUnmatchedParticipants = unmatchedParticipants.stream().filter(participant -> participant.matchedWith().size() < expectedSize).toList();
+            if (!stillUnmatchedParticipants.isEmpty() && !stillUnmatchedLeaders.isEmpty()) {
+                List<OneToOneMatch> newMatches = new ArrayList<>();
+                List<OneToOneMatch> matchesToRemove = new ArrayList<>();
+                for (int index = 0; index < stillUnmatchedParticipants.size(); index ++) {
+                    boolean isMatchedToAllRemainingLeaders = isParticipantMatchedWithAllOfTheGivenLeaders(stillUnmatchedParticipants.get(index), stillUnmatchedLeaders);
+                    if (isMatchedToAllRemainingLeaders) {
+                        // Loop through unmatchedLeaders and matched participants, if matched participant is not matched with stillUnmatchedLeader,
+                        // swap the matches if the stillUnmatchedParticipant also is not already matched to them
+                        for (OneToOneMatch match : matches) {
+                            if (!isParticipantMatchedWithLeader(match.participant(), stillUnmatchedLeaders.get(index))) {
+                                Leader leaderToSwap = match.leader();
+                                if (!isParticipantMatchedWithLeader(stillUnmatchedParticipants.get(index), leaderToSwap)) {
+                                    Participant updatedParticipant = giveInitialParticipantNewLeader(match.participant(), stillUnmatchedLeaders.get(index), slot);
+                                    updateLeaderMatchedWith(stillUnmatchedLeaders.get(index), match.participant(), slot);
+                                    newMatches.add(new OneToOneMatch(stillUnmatchedLeaders.get(index), updatedParticipant));
+
+                                    updateLeaderMatchedWith(leaderToSwap, stillUnmatchedParticipants.get(index), slot);
+                                    updateParticipantMatchedWith(stillUnmatchedParticipants.get(index), leaderToSwap, slot);
+                                    newMatches.add(new OneToOneMatch(leaderToSwap, stillUnmatchedParticipants.get(index)));
+
+                                    matchesToRemove.add(match);
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        throw new Exception("Serious algorithmic error has occurred. This program is not trustworthy.");
+                    }
+                }
+                matches.removeAll(matchesToRemove);
+                matches.addAll(newMatches);
+            }
             finalMatches.put(slot, matches);
         }
 //        excelService.createExcelNotebook(finalMatches);
+        // TODO: Leaders have a strange number of participants assigned but everything else looks good
         return finalMatches;
     }
 
@@ -163,6 +200,22 @@ public class MatchingOneToOneService {
         ArrayList<LeaderMatch> leaderMatchedWith = leader.matchedWith();
         leaderMatchedWith.add(leaderMatch);
         return leader.updateMatchedWith(leaderMatchedWith);
+    }
+
+    private Participant giveInitialParticipantNewLeader(Participant initialParticipant, Leader newLeader, String slot) {
+        ArrayList<ParticipantMatch> participantInitiallyMatchedWith = initialParticipant.matchedWith();
+        ArrayList<ParticipantMatch> newMatch = new ArrayList<>();
+        ArrayList<ParticipantMatch> matchToRemove = new ArrayList<>();
+        for (ParticipantMatch match : participantInitiallyMatchedWith) {
+            if (match.slot().equals(slot)) {
+                newMatch.add(new ParticipantMatch(slot, new LeaderDto(newLeader.name(), newLeader.email(), newLeader.preference())));
+                matchToRemove.add(match);
+            }
+        }
+        participantInitiallyMatchedWith.removeAll(matchToRemove);
+        participantInitiallyMatchedWith.addAll(newMatch);
+
+        return initialParticipant;
     }
 
     private int getNumberOfLeadersParticipantIsAlreadyMatchedWithFromUnmatchedLeaders(Participant participant, List<Leader> leadersNotAlreadyInMatched) {
@@ -184,5 +237,19 @@ public class MatchingOneToOneService {
         participants.forEach(participant -> preferences.add(participant.preference()));
 
         return preferences;
+    }
+
+    private boolean isParticipantMatchedWithAllOfTheGivenLeaders(Participant participant, List<Leader> leaders) {
+        for (Leader leader : leaders) {
+            String leaderEmail = leader.email();
+            if (participant.matchedWith().stream().noneMatch(match -> match.leaderMatchedWith().email().equals(leaderEmail))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isParticipantMatchedWithLeader(Participant participant, Leader leader) {
+        return participant.matchedWith().stream().anyMatch(match -> match.leaderMatchedWith().email().equals(leader.email()));
     }
 }

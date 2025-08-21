@@ -22,7 +22,7 @@ class MatchingOneToOneServiceTest {
     }
 
     @Test
-    void matchOneToOne() {
+    void matchOneToOne() throws Exception {
         HashMap<String, List<OneToOneMatch>> result = matchingOneToOneService.matchOneToOne(getLeadersAndParticipants());
 
     }
